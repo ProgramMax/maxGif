@@ -37,11 +37,11 @@ namespace Parsing
 
 		GifStandards Standard( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
-			switch( Buffer[ StartOffset + 5 ] )
+			switch( Buffer[ StartOffset + 4 ] )
 			{
-			case '7':
+			case uint8_t('7'):
 				return GifStandards::_87a;
-			case '9':
+			case uint8_t('9'):
 				return GifStandards::_89a;
 			default:
 				// This should never be reached.

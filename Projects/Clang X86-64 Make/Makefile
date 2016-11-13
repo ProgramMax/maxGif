@@ -6,7 +6,7 @@ CXX_OBJS = $(CXX_SRCS:.cpp=.o)
 
 INCLUDE_PATHS = \
 	$(CODE_DIRECTORY)/../Include \
-	$(CODE_DIRECTOY)/../../Dependencies/max/Code/Include
+	$(CODE_DIRECTORY)/../../Dependencies/max/Code/Include
 INCLUDE_PATHS_FLAGS = $(foreach d, $(INCLUDE_PATHS), -I$d)
 
 LIBRARY_PATHS = \
@@ -26,7 +26,7 @@ LINKER_FLAGS += $(LIBRARY_PATHS_FLAGS)
 
 
 
-all: lib$(PROGRAM_NAME).a maxAutomatedTests maxManualTests
+all: lib$(PROGRAM_NAME).a maxAutomatedTests
 
 lib$(PROGRAM_NAME).a: $(PCH_OBJS) $(CXX_OBJS)
 	ar rcs lib$(PROGRAM_NAME).a $(CXX_OBJS)
