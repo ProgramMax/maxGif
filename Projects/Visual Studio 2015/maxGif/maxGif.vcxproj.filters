@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\..\LICENSE" />
+    <None Include="..\..\..\Code\Include\maxGif\Parse.inl">
+      <Filter>Code\Include</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{5b49d861-0e10-42fd-b931-5e6a2deceef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Include">
+      <UniqueIdentifier>{51f355f6-bba2-457f-b423-3fce08e84f84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Include\Parsing">
+      <UniqueIdentifier>{a32722a3-6e72-4a64-b7ed-bd083c691d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\TranslationUnits">
+      <UniqueIdentifier>{8c772f92-aa23-4be7-b79d-63b7fc405a4b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\ApplicationExtensionBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\CommentExtensionBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\ErrorToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\GlobalColorTableBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\GraphicControlExtensionBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\HeaderBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\ImageDataBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\ImageDescriptorBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\LocalColorTableBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\LogicalScreenDescriptorBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\PlainTextExtensionBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\Token.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\Tokens.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parsing\TrailerBlockToken.hpp">
+      <Filter>Code\Include\Parsing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Code\Include\maxGif\Parse.hpp">
+      <Filter>Code\Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Code\TranslationUnits\EntryPoint.cpp">
+      <Filter>Code\TranslationUnits</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

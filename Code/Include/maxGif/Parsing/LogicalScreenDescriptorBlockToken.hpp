@@ -92,7 +92,7 @@ namespace Parsing
 
 		bool GetFlag( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask ) const noexcept
 		{
-			return Buffer[ StartOffset + AdditionalOffset ] & Mask;
+			return ( Buffer[ StartOffset + AdditionalOffset ] & Mask ) != 0;
 		}
 
 		uint8_t Get8Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask, const uint8_t Shift ) const noexcept
