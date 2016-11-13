@@ -29,28 +29,28 @@ namespace Parsing
 			return 7;
 		}
 
-		constexpr uint16_t CanvasWidth( const std::vector< uint8_t > & Buffer ) noexcept
+		uint16_t CanvasWidth( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr size_t CanvasWidthOffset = 0;
 
 			return Get16Bits( Buffer, CanvasWidthOffset );
 		}
 
-		constexpr uint16_t CanvasHeight( const std::vector< uint8_t > & Buffer ) noexcept
+		uint16_t CanvasHeight( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr size_t CanvasHeightOffset = 2;
 
 			return Get16Bits( Buffer, CanvasHeightOffset );
 		}
 
-		constexpr bool GlobalColorTableFlag( const std::vector< uint8_t > & Buffer ) noexcept
+		bool GlobalColorTableFlag( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr uint8_t GlobalColorTableFlagMask = 0b1000'0000;
 
 			return GetFlag( Buffer, PackedFieldOffset, GlobalColorTableFlagMask );
 		}
 
-		constexpr uint8_t ColorResolution( const std::vector< uint8_t > & Buffer ) noexcept
+		uint8_t ColorResolution( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr uint8_t ColorResolutionMask  = 0b0111'0000;
 			constexpr uint8_t ColorResolutionShift = 4;
@@ -58,29 +58,29 @@ namespace Parsing
 			return Get8Bits( Buffer, PackedFieldOffset, ColorResolutionMask, ColorResolutionShift );
 		}
 
-		constexpr bool SortFlag( const std::vector< uint8_t > & Buffer ) noexcept
+		bool SortFlag( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr uint8_t SortFlagMask = 0b0000'1000;
 
 			return GetFlag( Buffer, PackedFieldOffset, SortFlagMask );
 		}
 
-		constexpr uint8_t SizeOfGlobalColorTable( const std::vector< uint8_t > & Buffer ) noexcept
+		uint8_t SizeOfGlobalColorTable( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr uint8_t SizeOfGlobalColorTableMask  = 0b0000'0111;
 			constexpr uint8_t SizeOfGlobalColorTableShift = 0;
 
-			return Get8Bits( Buffer, PackedFieldOffset, SizeOfGlobalColorTableMask, SizeOfGlobalColorTableShfit );
+			return Get8Bits( Buffer, PackedFieldOffset, SizeOfGlobalColorTableMask, SizeOfGlobalColorTableShift );
 		}
 
-		constexpr uint8_t BackgroundColorIndex( const std::vector< uint8_t > & Buffer ) noexcept
+		uint8_t BackgroundColorIndex( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr size_t BackgroundColorIndexOffset = 5;
 
 			return Buffer[ StartOffset + BackgroundColorIndexOffset ];
 		}
 
-		constexpr uint8_t PixelAspectRatio( const std::vector< uint8_t > & Buffer ) noexcept
+		uint8_t PixelAspectRatio( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			constexpr size_t PixelAspectRatioOffset = 6;
 
@@ -90,25 +90,33 @@ namespace Parsing
 
 	private:
 
-		constexpr bool GetFlag( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask ) noexcept
+		bool GetFlag( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask ) const noexcept
 		{
 			return Buffer[ StartOffset + AdditionalOffset ] & Mask;
 		}
 
-		constexpr uint8_t Get8Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask, const uint8_t Shift ) noexcept
+		uint8_t Get8Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset, const uint8_t Mask, const uint8_t Shift ) const noexcept
 		{
-			return ( Buffer[ StartOffset + AdditionalOffset ] & Mask ) >> Shift;
+			uint8_t EightBits = Buffer[ StartOffset + AdditionalOffset ];
+
+			int MaskedValue = EightBits & Mask;
+			int ShiftedValue = MaskedValue >> Shift;
+
+			return static_cast< uint8_t >( ShiftedValue );
 		}
 
-		constexpr uint16_t Get16Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset ) noexcept
+		uint16_t Get16Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset ) const noexcept
 		{
 			// The value is stored as little-endian
-			uint16_t Returning = Buffer[ StartOffset + AdditionalOffset ] << 8;
-			Returning |= Buffer[ StartOffset + AdditionalOffset + 1 ];
-			return Returning;
+			uint8_t High8Bits = Buffer[ StartOffset + AdditionalOffset + 0 ];
+			uint8_t Low8Bits  = Buffer[ StartOffset + AdditionalOffset + 1 ];
+
+			int CombinedValues = ( High8Bits << 8 ) | Low8Bits;
+
+			return static_cast< uint16_t >( CombinedValues );
 		}
 
-		constexpr size_t PackedFieldOffset = 4;
+		static constexpr size_t PackedFieldOffset = 4;
 
 	};
 

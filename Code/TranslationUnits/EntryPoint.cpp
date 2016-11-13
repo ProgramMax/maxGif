@@ -60,7 +60,7 @@ public:
 
 int main()
 {
-	Parse< GifParsing::Callbacks >();
+	Parse< Callbacks >();
 
 	return 0;
 }

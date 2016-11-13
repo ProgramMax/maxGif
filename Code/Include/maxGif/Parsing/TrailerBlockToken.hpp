@@ -26,6 +26,7 @@ namespace Parsing
 
 		static constexpr size_t Size() noexcept
 		{
+			return 0;
 		}
 
 	};

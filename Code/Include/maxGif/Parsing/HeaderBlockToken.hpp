@@ -6,6 +6,7 @@
 #define MAXGIF_PARSING_HEADERBLOCKTOKEN_HPP
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
+#include <max/Compiling/NoDefault.hpp>
 #include <maxGif/Parsing/Token.hpp>
 #include <vector>
 #include <stdint.h>
@@ -34,7 +35,7 @@ namespace Parsing
 			_89a
 		};
 
-		GifStandards Standard( const std::vector< uint8_t > & Buffer ) noexcept
+		GifStandards Standard( const std::vector< uint8_t > & Buffer ) const noexcept
 		{
 			switch( Buffer[ StartOffset + 5 ] )
 			{
@@ -42,6 +43,9 @@ namespace Parsing
 				return GifStandards::_87a;
 			case '9':
 				return GifStandards::_89a;
+			default:
+				// This should never be reached.
+				MAX_NO_DEFAULT;
 			}
 		}
 
