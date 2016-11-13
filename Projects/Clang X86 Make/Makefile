@@ -15,7 +15,9 @@ LIBRARY_PATHS_FLAGS = $(foreach d, $(LIBRARY_PATHS), -L$d)
 
 AUTOMATED_TEST_CODE_DIRECTORY = ../../Code/AutomatedTests
 AUTOMATED_TEST_CXX_SRCS = \
-	$(AUTOMATED_TEST_CODE_DIRECTORY)/HeaderBlockTokenTest.cpp
+	$(AUTOMATED_TEST_CODE_DIRECTORY)/HeaderBlockTokenTest.cpp \
+	$(AUTOMATED_TEST_CODE_DIRECTORY)/../../Dependencies/max/Code/TranslationUnits/Testing/Test.cpp \
+	$(AUTOMATED_TEST_CODE_DIRECTORY)/../../Dependencies/max/Code/TranslationUnits/Testing/TestSuite.cpp
 AUTOMATED_TEST_CXX_OBJS = $(AUTOMATED_TEST_CXX_SRCS:.cpp=.o)
 
 CPPFLAGS += $(INCLUDE_PATHS_FLAGS) -std=c++14 -Werror -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -m32
@@ -24,7 +26,7 @@ LINKER_FLAGS += $(LIBRARY_PATHS_FLAGS)
 
 
 
-all: lib$(PROGRAM_NAME).a maxAutomatedTests maxManualTests
+all: lib$(PROGRAM_NAME).a maxAutomatedTests
 
 lib$(PROGRAM_NAME).a: $(PCH_OBJS) $(CXX_OBJS)
 	ar rcs lib$(PROGRAM_NAME).a $(CXX_OBJS)
