@@ -45,6 +45,14 @@ namespace Parsing
 				return GifStandards::_89a;
 			default:
 				// This should never be reached.
+				//
+				// When parsing, a HeaderBlockToken should not be
+				// created unless the version is recognized.
+				//
+				// Intead, the parser would have created an ErrorToken.
+				//
+				// If the user of the library finds their bug to be here,
+				// they probably provided a different Buffer param.
 				MAX_NO_DEFAULT;
 			}
 		}
