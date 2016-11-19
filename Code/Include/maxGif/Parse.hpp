@@ -5,8 +5,8 @@
 #ifndef MAXGIF_PARSING_PARSE_HPP
 #define MAXGIF_PARSING_PARSE_HPP
 
-template< typename CallbackPolicy >
-void Parse() noexcept;
+template< typename CallbackPolicyType >
+void Parse( CallbackPolicyType & CallbackPolicy ) noexcept;
 
 #include <maxGif/Parse.inl>
 
