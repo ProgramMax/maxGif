@@ -10,38 +10,45 @@
 namespace
 {
 
-	template< typename CallbackPolicy >
-	bool BufferHasEnoughSpaceForToken( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool BufferHasEnoughSpaceForToken( CallbackPolicyType & CallbackPolicy,
+	                                   const std::vector< uint8_t > & Buffer,
 	                                   const size_t CurrentOffset,
 	                                   const size_t ExpectedTokenSize ) noexcept;
 
-	template< typename CallbackPolicy >
-	bool DoesBufferStartWithGIF( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool DoesBufferStartWithGIF( CallbackPolicyType & CallbackPolicy,
+	                             const std::vector< uint8_t > & Buffer,
 	                             const size_t CurrentOffset ) noexcept;
 
-	template< typename CallbackPolicy >
-	bool IsGifVersionKnown( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool IsGifVersionKnown( CallbackPolicyType & CallbackPolicy,
+	                        const std::vector< uint8_t > & Buffer,
 	                        const size_t CurrentOffset ) noexcept;
 
-	template< typename CallbackPolicy >
-	bool ReadHeaderBlock( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool ReadHeaderBlock( CallbackPolicyType & CallbackPolicy,
+	                      const std::vector< uint8_t > & Buffer,
 	                      const size_t CurrentOffset ) noexcept
 	{
-		if( BufferHasEnoughSpaceForToken< CallbackPolicy >( Buffer,
-		                                                    CurrentOffset,
-		                                                    maxGif::v0::Parsing::HeaderBlockToken::Size() ) )
+		if( BufferHasEnoughSpaceForToken( CallbackPolicy,
+		                                  Buffer,
+		                                  CurrentOffset,
+		                                  maxGif::Parsing::HeaderBlockToken::Size() ) )
 		{
 			// Gif files all start with "GIF",
-			if( DoesBufferStartWithGIF< CallbackPolicy >( Buffer,
-			                                              CurrentOffset ) )
+			if( DoesBufferStartWithGIF( CallbackPolicy,
+			                            Buffer,
+			                            CurrentOffset ) )
 			{
 				// followed by the specification version.
 				// The only specifications published as of
 				// this writing is 87a and 89a
-				if( IsGifVersionKnown< CallbackPolicy >( Buffer,
-				                                         CurrentOffset + 3 ) )
+				if( IsGifVersionKnown( CallbackPolicy,
+				                       Buffer,
+				                       CurrentOffset + 3 ) )
 				{
-					CallbackPolicy::OnHeaderBlockEncountered( maxGif::v0::Parsing::HeaderBlockToken( CurrentOffset ) );
+					CallbackPolicy.OnHeaderBlockEncountered( maxGif::Parsing::HeaderBlockToken( CurrentOffset ) );
 				}
 			}
 		}
@@ -49,8 +56,9 @@ namespace
 		return true;
 	}
 
-	template< typename CallbackPolicy >
-	bool BufferHasEnoughSpaceForToken( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool BufferHasEnoughSpaceForToken( CallbackPolicyType & CallbackPolicy,
+	                                   const std::vector< uint8_t > & Buffer,
 	                                   const size_t CurrentOffset,
 	                                   const size_t ExpectedTokenSize ) noexcept
 	{
@@ -59,13 +67,14 @@ namespace
 			return true;
 		} else {
 			// Not enough space for a header block
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BufferTooSmallForToken ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BufferTooSmallForToken ) );
 			return false;
 		}
 	}
 
-	template< typename CallbackPolicy >
-	bool DoesBufferStartWithGIF( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool DoesBufferStartWithGIF( CallbackPolicyType & CallbackPolicy,
+	                             const std::vector< uint8_t > & Buffer,
 	                             const size_t CurrentOffset ) noexcept
 	{
 		// Gif files all start with "GIF",
@@ -75,13 +84,14 @@ namespace
 		{
 			return true;
 		} else {
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::InvalidHeader ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::InvalidHeader ) );
 			return false;
 		}
 	}
 
-	template< typename CallbackPolicy >
-	bool IsGifVersionKnown( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool IsGifVersionKnown( CallbackPolicyType & CallbackPolicy,
+	                        const std::vector< uint8_t > & Buffer,
 	                        const size_t CurrentOffset ) noexcept
 	{
 		if( Buffer[ CurrentOffset + 0 ] == '8' &&
@@ -89,18 +99,18 @@ namespace
 		      Buffer[ CurrentOffset + 1 ] == '9' ) &&
 		    Buffer[ CurrentOffset + 2 ] == 'a' )
 		{
-			CallbackPolicy::OnHeaderBlockEncountered( maxGif::v0::Parsing::HeaderBlockToken( CurrentOffset ) );
+			CallbackPolicy.OnHeaderBlockEncountered( maxGif::v0::Parsing::HeaderBlockToken( CurrentOffset ) );
 			return true;
 		} else {
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ) );
 			return false;
 		}
 	}
 
 } // anonymous namespace
 
-template< typename CallbackPolicy >
-void Parse() noexcept
+template< typename CallbackPolicyType >
+void Parse( CallbackPolicyType & CallbackPolicy ) noexcept
 {
 	std::ifstream in( R"(../../corrupt_example.gif)", std::ios::binary | std::ios::ate );
 	size_t fileSize = (size_t)in.tellg();
@@ -116,5 +126,5 @@ void Parse() noexcept
 	size_t CurrentOffset = 0;
 
 
-	ReadHeaderBlock< CallbackPolicy >( Buffer, CurrentOffset );
+	ReadHeaderBlock( CallbackPolicy, Buffer, CurrentOffset );
 }

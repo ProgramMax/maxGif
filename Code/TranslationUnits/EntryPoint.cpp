@@ -60,7 +60,8 @@ public:
 
 int main()
 {
-	Parse< Callbacks >();
+	Callbacks CallbackObject;
+	Parse<>( CallbackObject );
 
 	return 0;
 }
