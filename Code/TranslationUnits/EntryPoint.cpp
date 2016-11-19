@@ -56,6 +56,10 @@ public:
 	{
 	}
 
+	static void OnBufferDone() noexcept
+	{
+	}
+
 };
 
 int main()
