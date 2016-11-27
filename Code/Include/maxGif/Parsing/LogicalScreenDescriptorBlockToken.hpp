@@ -8,6 +8,8 @@
 #include <max/Compiling/CurrentVersionNamespace.hpp>
 #include <maxGif/Parsing/Token.hpp>
 #include <vector>
+#include <max/Algorithms/SwapEndian.hpp>
+#include <max/Compiling/Configuration.hpp>
 
 namespace maxGif
 {
@@ -108,12 +110,12 @@ namespace Parsing
 		uint16_t Get16Bits( const std::vector< uint8_t > & Buffer, const size_t AdditionalOffset ) const noexcept
 		{
 			// The value is stored as little-endian
-			uint8_t High8Bits = Buffer[ StartOffset + AdditionalOffset + 0 ];
-			uint8_t Low8Bits  = Buffer[ StartOffset + AdditionalOffset + 1 ];
+			uint8_t First8Bits  = Buffer[ StartOffset + AdditionalOffset + 0 ];
+			uint8_t Second8Bits = Buffer[ StartOffset + AdditionalOffset + 1 ];
 
-			int CombinedValues = ( High8Bits << 8 ) | Low8Bits;
+			uint16_t CombinedValues = max::Algorithms::CombinePieces( First8Bits, Second8Bits );
 
-			return static_cast< uint16_t >( CombinedValues );
+			return max::Algorithms::LittleEndianToHost( CombinedValues );
 		}
 
 		static constexpr size_t PackedFieldOffset = 4;
