@@ -4,6 +4,7 @@
 
 #include <maxGif/Parsing/HeaderBlockToken.hpp>
 #include <maxGif/Parsing/ErrorToken.hpp>
+#include <maxGif/Parsing/LogicalScreenDescriptorBlockToken.hpp>
 #include <iostream>
 #include <vector>
 
@@ -41,7 +42,7 @@ namespace
 				if( IsGifVersionKnown< CallbackPolicy >( Buffer,
 				                                         CurrentOffset + 3 ) )
 				{
-					CallbackPolicy::OnHeaderBlockEncountered( maxGif::v0::Parsing::HeaderBlockToken( CurrentOffset ) );
+					CallbackPolicy.OnHeaderBlockEncountered( maxGif::Parsing::HeaderBlockToken( CurrentOffset ), Buffer );
 				}
 			}
 		}
@@ -49,8 +50,25 @@ namespace
 		return true;
 	}
 
-	template< typename CallbackPolicy >
-	bool BufferHasEnoughSpaceForToken( const std::vector< uint8_t > & Buffer,
+	template< typename CallbackPolicyType >
+	bool ReadLogicalScreenDescriptorBlock( CallbackPolicyType & CallbackPolicy,
+	                                       const std::vector< uint8_t > & Buffer,
+	                                       const size_t CurrentOffset ) noexcept
+	{
+		if( BufferHasEnoughSpaceForToken( CallbackPolicy,
+		                                  Buffer,
+		                                  CurrentOffset,
+		                                  maxGif::Parsing::LogicalScreenDescriptorBlockToken::Size() ) )
+		{
+			CallbackPolicy.OnLogicalScreenDescriptorBlockEncountered( maxGif::Parsing::LogicalScreenDescriptorBlockToken( CurrentOffset ), Buffer );
+		}
+
+		return true;
+	}
+
+	template< typename CallbackPolicyType >
+	bool BufferHasEnoughSpaceForToken( CallbackPolicyType & CallbackPolicy,
+	                                   const std::vector< uint8_t > & Buffer,
 	                                   const size_t CurrentOffset,
 	                                   const size_t ExpectedTokenSize ) noexcept
 	{
@@ -59,7 +77,7 @@ namespace
 			return true;
 		} else {
 			// Not enough space for a header block
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BufferTooSmallForToken ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BufferTooSmallForToken ), Buffer );
 			return false;
 		}
 	}
@@ -75,7 +93,7 @@ namespace
 		{
 			return true;
 		} else {
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::InvalidHeader ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::InvalidHeader ), Buffer );
 			return false;
 		}
 	}
@@ -89,10 +107,9 @@ namespace
 		      Buffer[ CurrentOffset + 1 ] == '9' ) &&
 		    Buffer[ CurrentOffset + 2 ] == 'a' )
 		{
-			CallbackPolicy::OnHeaderBlockEncountered( maxGif::v0::Parsing::HeaderBlockToken( CurrentOffset ) );
 			return true;
 		} else {
-			CallbackPolicy::OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ) );
+			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ), Buffer );
 			return false;
 		}
 	}
@@ -116,5 +133,8 @@ void Parse() noexcept
 	size_t CurrentOffset = 0;
 
 
-	ReadHeaderBlock< CallbackPolicy >( Buffer, CurrentOffset );
+	ReadHeaderBlock( CallbackPolicy, Buffer, CurrentOffset );
+	CurrentOffset += maxGif::Parsing::HeaderBlockToken::Size();
+
+	ReadLogicalScreenDescriptorBlock( CallbackPolicy, Buffer, CurrentOffset );
 }
