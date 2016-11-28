@@ -20,16 +20,21 @@ AUTOMATED_TEST_CXX_SRCS = \
 	$(AUTOMATED_TEST_CODE_DIRECTORY)/../../Dependencies/max/Code/TranslationUnits/Testing/TestSuite.cpp
 AUTOMATED_TEST_CXX_OBJS = $(AUTOMATED_TEST_CXX_SRCS:.cpp=.o)
 
-CPPFLAGS += $(INCLUDE_PATHS_FLAGS) -std=c++14 -Werror -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -O3 -m32
+CPPFLAGS += $(INCLUDE_PATHS_FLAGS) -std=c++14 -Werror -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -m32
 LINKER_FLAGS += $(LIBRARY_PATHS_FLAGS)
 
 
 
 
-all: lib$(PROGRAM_NAME).a maxAutomatedTests
+#all: lib$(PROGRAM_NAME).a maxAutomatedTests
 
-lib$(PROGRAM_NAME).a: $(CXX_OBJS)
-	ar rcs lib$(PROGRAM_NAME).a $(CXX_OBJS)
+#lib$(PROGRAM_NAME).a: $(CXX_OBJS)
+#	ar rcs lib$(PROGRAM_NAME).a $(CXX_OBJS)
+
+all: $(PROGRAM_NAME) maxAutomatedTests
+
+$(PROGRAM_NAME) : $(CXX_OBJS)
+	g++ -g $(CXX_OBJS) $(lINKER_FLAGS) -o $(PROGRAM_NAME)
 
 maxAutomatedTests: $(AUTOMATED_TEST_CXX_OBJS)
 	g++ -g $(AUTOMATED_TEST_CXX_OBJS) $(LINKER_FLAGS) -I$(PROGRAM_NAME) -o maxAutomatedTests
