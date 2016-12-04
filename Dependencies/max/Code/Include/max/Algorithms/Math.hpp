@@ -1,9 +1,9 @@
-// Copyright 2015, The max Contributors. All rights reserved.
+// Copyright 2016, The max Contributors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef MAX_ALGORITHMS_ISBETWEEN_HPP
-#define MAX_ALGORITHMS_ISBETWEEN_HPP
+#ifndef MAX_ALGORITHMS_MATH_HPP
+#define MAX_ALGORITHMS_MATH_HPP
 
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
@@ -18,15 +18,15 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Algorithms
 {
 
-	// Documentation: ../../../../Documentation/max/v0/Algorithms/IsBetween.md
+	// Documentation: ../../../../Documentation/max/v0/Algorithms/Math.md
 	template< typename T >
-	MAX_PURE_DECLARATION( constexpr bool IsBetween( const T Value, const max::Containers::Range< T > & Range ) MAX_DOES_NOT_THROW );
+	MAX_PURE_DECLARATION( constexpr T TwoToThePowerOf( const T Exponent ) MAX_DOES_NOT_THROW );
 
 } // namespace Algorithms
 } // MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 MAX_CURRENT_VERSION_NAMESPACE_END( v0 )
 } // namespace max
 
-#include <max/Algorithms/IsBetween.inl>
+#include <max/Algorithms/Math.inl>
 
-#endif // #ifndef MAX_ALGORITHMS_ISBETWEEN_HPP
+#endif // #ifndef MAX_ALGORITHMS_MATH_HPP
