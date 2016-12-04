@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <maxGif/Parse.hpp>
+#include <maxGif/GifParser.hpp>
 #include <maxGif/Parsing/Tokens.hpp>
 
 class Callbacks
@@ -20,8 +20,11 @@ public:
 	{
 	}
 
-	static void OnGlobalColorTableBlockEncountered( const maxGif::Parsing::GlobalColorTableBlockToken & /*token*/, const std::vector< uint8_t > & /*Buffer*/ ) noexcept
+	static void OnGlobalColorTableBlockEncountered( const maxGif::Parsing::GlobalColorTableBlockToken & Token, const std::vector< uint8_t > & /*Buffer*/ ) noexcept
 	{
+		std::cout << "Global color table block:" << std::endl;
+
+		std::cout << "\tSize in bytes: " << Token.SizeInBytes() << std::endl;
 	}
 
 	static void OnGraphicControlExtensionBlockEncounered( const maxGif::Parsing::GraphicControlExtensionBlockToken & /*token*/, const std::vector< uint8_t > & /*Buffer*/ ) noexcept
@@ -85,8 +88,19 @@ public:
 
 int main()
 {
-	Callbacks CallbackObject;
-	Parse<>( CallbackObject );
+	std::ifstream in( R"(../../corrupt_example.gif)", std::ios::binary | std::ios::ate );
+	size_t fileSize = (size_t)in.tellg();
+	in.seekg( 0 );
+
+	std::vector< uint8_t > Buffer;
+	Buffer.resize( fileSize );
+
+	Buffer.assign( std::istreambuf_iterator< char >( in ), std::istreambuf_iterator< char >() );
+
+
+	Callbacks CallbackHandler;
+	auto Parser = GifParser< Callbacks >{ CallbackHandler };
+	Parser.Parse( Buffer );
 
 	return 0;
 }

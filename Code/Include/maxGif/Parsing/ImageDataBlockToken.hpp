@@ -24,7 +24,7 @@ namespace Parsing
 			: Token( StartOffset )
 		{}
 
-		static constexpr size_t Size() noexcept
+		static constexpr size_t SizeInBytes() noexcept
 		{
 			return 0;
 		}

@@ -18,13 +18,16 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	struct HeaderBlockToken : public Token
+	class HeaderBlockToken : public Token
 	{
+	public:
+
 		explicit constexpr HeaderBlockToken( const size_t StartOffset ) noexcept
 			: Token( StartOffset )
-		{}
+		{
+		}
 
-		static constexpr size_t Size() noexcept
+		static constexpr size_t SizeInBytes() noexcept
 		{
 			return 6;
 		}

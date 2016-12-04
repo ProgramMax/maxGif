@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef MAXGIF_PARSING_IMAGEDESCRIPTORBLOCKTOKEN_HPP
-#define MAXGIF_PARSING_IMAGEDESCRIPTORBLOCKTOKEN_HPP
+#ifndef MAXGIF_PARSING_VARIABLESIZEDTOKEN_HPP
+#define MAXGIF_PARSING_VARIABLESIZEDTOKEN_HPP
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
 #include <maxGif/Parsing/Token.hpp>
-#include <vector>
+#include <cstddef>
 
 namespace maxGif
 {
@@ -16,19 +16,17 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	class ImageDescriptorBlockToken : public Token
+	class VariableSizedToken : public Token
 	{
 	public:
 
-		explicit constexpr ImageDescriptorBlockToken( const size_t StartOffset ) noexcept
-			: Token( StartOffset )
+		constexpr VariableSizedToken( const size_t StartOffset, const size_t SizeInBytes ) noexcept
+			: Token(       StartOffset )
+			, SizeInBytes( SizeInBytes )
 		{
 		}
 
-		static constexpr size_t SizeInBytes() noexcept
-		{
-			return 0;
-		}
+		size_t SizeInBytes;
 
 	};
 
@@ -37,4 +35,4 @@ namespace Parsing
 MAX_CURRENT_VERSION_NAMESPACE_END( v0 )
 } // namespace maxGif
 
-#endif // #ifndef MAXGIF_PARSING_IMAGEDESCRIPTORBLOCKTOKEN_HPP
+#endif // #ifndef MAXGIF_PARSING_VARIABLESIZEDTOKEN_HPP

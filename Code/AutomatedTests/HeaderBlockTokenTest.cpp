@@ -19,7 +19,7 @@ int main() {
 
 	TestSuite.AddTest( max::Testing::Test( "size is 6",
 		[]( max::Testing::Test & CurrentTest ) {
-			CurrentTest.MAX_TESTING_ASSERT( maxGif::Parsing::HeaderBlockToken::Size() == 6 );
+			CurrentTest.MAX_TESTING_ASSERT( maxGif::Parsing::HeaderBlockToken::SizeInBytes() == 6 );
 		}
 	));
 
