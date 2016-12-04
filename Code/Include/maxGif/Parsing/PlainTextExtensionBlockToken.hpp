@@ -22,9 +22,10 @@ namespace Parsing
 
 		explicit constexpr PlainTextExtensionBlockToken( const size_t StartOffset ) noexcept
 			: Token( StartOffset )
-		{}
+		{
+		}
 
-		static constexpr size_t Size() noexcept
+		static constexpr size_t SizeInBytes() noexcept
 		{
 			return 0;
 		}

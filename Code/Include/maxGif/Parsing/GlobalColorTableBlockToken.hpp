@@ -6,7 +6,7 @@
 #define MAXGIF_PARSING_GLOBALCOLORTABLEBLOCKTOKEN_HPP
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
-#include <maxGif/Parsing/Token.hpp>
+#include <maxGif/Parsing/VariableSizedToken.hpp>
 #include <vector>
 
 namespace maxGif
@@ -16,17 +16,18 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	class GlobalColorTableBlockToken : public Token
+	class GlobalColorTableBlockToken : public VariableSizedToken
 	{
 	public:
 
-		explicit constexpr GlobalColorTableBlockToken( const size_t StartOffset ) noexcept
-			: Token( StartOffset )
-		{}
-
-		static constexpr size_t Size() noexcept
+		constexpr GlobalColorTableBlockToken( const size_t StartOffset, const size_t Size ) noexcept
+			: VariableSizedToken( StartOffset, Size )
 		{
-			return 0;
+		}
+
+		size_t SizeInBytes() const noexcept
+		{
+			return VariableSizedToken::SizeInBytes;
 		}
 
 	};

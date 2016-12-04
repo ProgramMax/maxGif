@@ -15,11 +15,14 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	struct Token
+	class Token
 	{
+	public:
+
 		explicit constexpr Token( const size_t StartOffset ) noexcept
 			: StartOffset( StartOffset )
-		{}
+		{
+		}
 
 		size_t StartOffset;
 	};

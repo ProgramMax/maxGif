@@ -15,8 +15,10 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	struct ErrorToken : public Token
+	class ErrorToken : public Token
 	{
+	public:
+
 		enum class ErrorCodes
 		{
 			BufferTooSmallForToken,
@@ -27,9 +29,11 @@ namespace Parsing
 		constexpr ErrorToken( const size_t StartOffset, const ErrorCodes ErrorCode ) noexcept
 			: Token(     StartOffset )
 			, ErrorCode( ErrorCode   )
-		{}
+		{
+		}
 
 		ErrorCodes ErrorCode;
+
 	};
 
 } // namespace Parsing
