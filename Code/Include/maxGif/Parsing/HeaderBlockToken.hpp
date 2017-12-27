@@ -35,7 +35,7 @@ namespace Parsing
 		enum class GifStandards
 		{
 			_87a,
-			_89a
+			_89a,
 		};
 
 		GifStandards Standard( const std::vector< uint8_t > & Buffer ) const noexcept

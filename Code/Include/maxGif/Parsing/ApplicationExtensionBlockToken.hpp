@@ -6,7 +6,7 @@
 #define MAXGIF_PARSING_APPLICATIONEXTENSIONBLOCKTOKEN_HPP
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
-#include <maxGif/Parsing/Token.hpp>
+#include <maxGif/Parsing/VariableSizedToken.hpp>
 #include <vector>
 
 namespace maxGif
@@ -16,18 +16,28 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	class ApplicationExtensionBlockToken : public Token
+	class ApplicationExtensionBlockToken : public VariableSizedToken
 	{
 	public:
 
-		explicit constexpr ApplicationExtensionBlockToken( const size_t StartOffset ) noexcept
-			: Token( StartOffset )
+		explicit constexpr ApplicationExtensionBlockToken( const size_t StartOffset, const size_t SizeInBytes ) noexcept
+			: VariableSizedToken( StartOffset, SizeInBytes )
 		{
 		}
 
-		static constexpr size_t SizeInBytes() noexcept
+		size_t SizeInBytes() const noexcept
 		{
-			return 0;
+			return VariableSizedToken::SizeInBytes;
+		}
+
+		constexpr size_t ApplicationBlockStartOffset() noexcept
+		{
+			return StartOffset + 3;
+		}
+
+		uint8_t ApplicationBlockSizeInBytes( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			return Buffer[ StartOffset + 2 ];
 		}
 
 	};

@@ -7,6 +7,7 @@
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
 #include <maxGif/Parsing/Token.hpp>
+#include <maxGif/Parsing/BitManipulation.hpp>
 #include <vector>
 
 namespace maxGif
@@ -27,7 +28,49 @@ namespace Parsing
 
 		static constexpr size_t SizeInBytes() noexcept
 		{
-			return 0;
+			return 8;
+		}
+
+		enum class DisposalMethods
+		{
+			Unspecified = 0,
+			KeepThisFrame = 1,
+			RestoreBackgroundColorFromLogicalScreenDescriptor = 2,
+			RestorePreviousBuffer = 3,
+		};
+
+		uint8_t RawDisposalMethod( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			constexpr size_t Offset = 3;
+			constexpr uint8_t Mask = 0b0001'1100;
+			constexpr uint8_t Shift = 3;
+			return Get8Bits( & Buffer[ 0 ], StartOffset + Offset, Mask, Shift );
+		}
+
+		bool UserInputFlag( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			constexpr size_t Offset = 3;
+			constexpr uint8_t Mask = 0b0000'0010;
+			return GetFlag( & Buffer[ 0 ], Offset, Mask );
+		}
+
+		bool TransparentColorFlag( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			constexpr size_t Offset = 3;
+			constexpr uint8_t Mask = 0b0000'0001;
+			return GetFlag( & Buffer[ 0 ], Offset, Mask );
+		}
+
+		uint16_t DelayTime( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			constexpr size_t Offset = 3;
+			return Get16BitsLittleEndian( & Buffer[ 0 ], Offset );
+		}
+
+		uint8_t TransparentColorIndex( const std::vector< uint8_t > & Buffer ) const noexcept
+		{
+			constexpr size_t Offset = 4;
+			return Buffer[ StartOffset + Offset ];
 		}
 
 	};
