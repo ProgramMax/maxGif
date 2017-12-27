@@ -7,6 +7,12 @@
 #include <maxGif/Parsing/LogicalScreenDescriptorBlockToken.hpp>
 #include <maxGif/Parsing/GlobalColorTableBlockToken.hpp>
 #include <max/Algorithms/Math.hpp>
+#include <maxGif/Parsing/TrailerBlockToken.hpp>
+#include <maxGif/Parsing/GraphicControlExtensionBlockToken.hpp>
+#include <maxGif/Parsing/ImageDescriptorBlockToken.hpp>
+#include <maxGif/Parsing/PlainTextExtensionBlockToken.hpp>
+#include <maxGif/Parsing/ApplicationExtensionBlockToken.hpp>
+#include <maxGif/Parsing/CommentExtensionBlockToken.hpp>
 
 namespace
 {
@@ -92,9 +98,10 @@ namespace
 
 			CallbackPolicy.OnLogicalScreenDescriptorBlockEncountered( Token, Buffer );
 			ParserState.m_CurrentOffset += maxGif::Parsing::LogicalScreenDescriptorBlockToken::SizeInBytes();
+			return true;
+		} else {
+			return false;
 		}
-
-		return true;
 	}
 
 	template< typename CallbackPolicyType >
@@ -127,6 +134,114 @@ namespace
 			} else {
 				return false;
 			}
+		}
+	}
+
+	template< typename CallbackPolicyType >
+	bool ReadGraphicControlExtensionBlock( GifParserState & ParserState,
+	                                       CallbackPolicyType & CallbackPolicy,
+	                                       const std::vector< uint8_t > & Buffer ) noexcept
+	{
+		if( BufferHasEnoughSpaceForToken( ParserState,
+		                                  CallbackPolicy,
+		                                  Buffer,
+		                                  3 ) )
+		{
+			auto ExtensionSize = Buffer[ ParserState.m_CurrentOffset ];
+			if (ExtensionSize != 4)
+			{
+				CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken{ ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnexpectedBlockSize }, Buffer );
+				return false;
+			}
+
+			if (BufferHasEnoughSpaceForToken( ParserState,
+			                                  CallbackPolicy,
+			                                  Buffer,
+			                                  maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes()  ) )
+			{
+				auto BlockTerminator = Buffer[ ParserState.m_CurrentOffset + maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes() - 1 ];
+				if( BlockTerminator != 0x00 )
+				{
+					CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BlockTerminatorNotPresent ), Buffer );
+					return false;
+				}
+				CallbackPolicy.OnGraphicControlExtensionBlockEncountered( maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+				ParserState.m_CurrentOffset += maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes();
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	template< typename CallbackPolicyType >
+	bool ReadFirstBodyBlock( GifParserState & ParserState,
+	                         CallbackPolicyType & CallbackPolicy,
+	                         const std::vector< uint8_t > & Buffer ) noexcept
+	{
+		if( BufferHasEnoughSpaceForToken( ParserState,
+		                                  CallbackPolicy,
+		                                  Buffer,
+		                                  1 ) )
+		{
+			switch( Buffer[ ParserState.m_CurrentOffset ] )
+			{
+			case 0x21: // Extension introducer
+				{
+					if( BufferHasEnoughSpaceForToken( ParserState,
+					                                  CallbackPolicy,
+					                                  Buffer,
+					                                  2 ) )
+					{
+						switch( Buffer[ ParserState.m_CurrentOffset ] )
+						{
+						case 0xf9: // Graphics control label
+							CallbackPolicy.OnGraphicControlExtensionBlockEncountered( maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+							return ReadGraphicControlExtensionBlock( ParserState,
+							                                         CallbackPolicy,
+                                                                     Buffer );
+							break;
+						case 0x01: // Plain text label
+							CallbackPolicy.OnPlainTextExtensionBlockEncountered( maxGif::v0::Parsing::PlainTextExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+							break;
+						case 0xff: // Application label
+							if( BufferHasEnoughSpaceForToken( ParserState,
+							                                  CallbackPolicy,
+							                                  Buffer,
+							                                  1 ) )
+							{
+								uint8_t LabelLength = Buffer[ ParserState.m_CurrentOffset + 1 ];
+								CallbackPolicy.OnApplicationExtensionBlockEncountered( maxGif::v0::Parsing::ApplicationExtensionBlockToken{ ParserState.m_CurrentOffset, LabelLength }, Buffer );
+							}
+							break;
+						case 0xfe: // Comment label
+							CallbackPolicy.OnCommentExtensionBlockEncountered( maxGif::v0::Parsing::CommentExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+							break;
+						default:
+							CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken{ ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownBlock }, Buffer );
+							return false;
+						}
+					}
+				}
+				return true;
+				break;
+			case 0x2c: // Image descriptor
+				CallbackPolicy.OnImageDescriptorBlockEncountered( maxGif::v0::Parsing::ImageDescriptorBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+				return true;
+				break;
+			case 0x3b: // Trailer
+				CallbackPolicy.OnTrailerBlockEncountered( maxGif::v0::Parsing::TrailerBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+				ParserState.m_CurrentOffset += maxGif::v0::Parsing::TrailerBlockToken::SizeInBytes();
+				return true;
+				break;
+			default:
+				CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken{ ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownBlock }, Buffer );
+				return false;
+			}
+		} else {
+			return false;
 		}
 	}
 
@@ -202,4 +317,6 @@ void GifParser< CallbackPolicyType >::Parse( const std::vector< uint8_t > & Buff
 	ReadLogicalScreenDescriptorBlock( ParserState, m_CallbackPolicy, Buffer );
 
 	ReadOptionalGlobalColorTableBlock( ParserState, m_CallbackPolicy, Buffer );
+
+	ReadFirstBodyBlock( ParserState, m_CallbackPolicy, Buffer );
 }

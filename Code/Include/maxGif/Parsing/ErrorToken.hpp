@@ -23,7 +23,10 @@ namespace Parsing
 		{
 			BufferTooSmallForToken,
 			InvalidHeader,
-			UnknownGifVersion
+			UnknownGifVersion,
+			UnknownBlock,
+			UnexpectedBlockSize,
+			BlockTerminatorNotPresent
 		};
 
 		constexpr ErrorToken( const size_t StartOffset, const ErrorCodes ErrorCode ) noexcept
