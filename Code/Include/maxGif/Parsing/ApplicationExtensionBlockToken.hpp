@@ -8,6 +8,7 @@
 #include <max/Compiling/CurrentVersionNamespace.hpp>
 #include <maxGif/Parsing/VariableSizedToken.hpp>
 #include <vector>
+#include <cstddef>
 
 namespace maxGif
 {
@@ -20,7 +21,7 @@ namespace Parsing
 	{
 	public:
 
-		explicit constexpr ApplicationExtensionBlockToken( const size_t StartOffset, const size_t SizeInBytes ) noexcept
+		constexpr ApplicationExtensionBlockToken( const size_t StartOffset, const uint8_t SizeInBytes ) noexcept
 			: VariableSizedToken( StartOffset, SizeInBytes )
 		{
 		}

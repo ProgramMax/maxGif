@@ -31,9 +31,6 @@ public:
 		case maxGif::Parsing::ErrorToken::ErrorCodes::BufferTooSmallForToken:
 			std::cout << "\tBuffer too small for token" << std::endl;
 			break;
-		case maxGif::Parsing::ErrorToken::ErrorCodes::InvalidHeader:
-			std::cout << "\tInvalid header" << std::endl;
-			break;
 		case maxGif::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion:
 			std::cout << "\tUnknown gif version" << std::endl;
 			break;
@@ -70,12 +67,12 @@ public:
 	{
 		std::cout << "Header block:" << std::endl;
 
-		switch( Token.Standard( Buffer ) )
+		switch( Buffer[ Token.StartOffset + 4 ] )
 		{
-		case maxGif::Parsing::HeaderBlockToken::GifStandards::_87a:
+		case '7':
 			std::cout << "\tGif standard 87a" << std::endl;
 			break;
-		case maxGif::Parsing::HeaderBlockToken::GifStandards::_89a:
+		case '9':
 			std::cout << "\tGif standard 89a" << std::endl;
 			break;
 		}

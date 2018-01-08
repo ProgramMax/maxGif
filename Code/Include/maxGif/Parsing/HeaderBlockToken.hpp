@@ -38,28 +38,6 @@ namespace Parsing
 			_89a,
 		};
 
-		GifStandards Standard( const std::vector< uint8_t > & Buffer ) const noexcept
-		{
-			switch( Buffer[ StartOffset + 4 ] )
-			{
-			case uint8_t('7'):
-				return GifStandards::_87a;
-			case uint8_t('9'):
-				return GifStandards::_89a;
-			default:
-				// This should never be reached.
-				//
-				// When parsing, a HeaderBlockToken should not be
-				// created unless the version is recognized.
-				//
-				// Intead, the parser would have created an ErrorToken.
-				//
-				// If the user of the library finds their bug to be here,
-				// they probably provided a different Buffer param.
-				MAX_NO_DEFAULT;
-			}
-		}
-
 	};
 
 } // namespace Parsing

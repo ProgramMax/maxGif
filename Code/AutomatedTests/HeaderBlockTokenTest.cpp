@@ -23,24 +23,6 @@ int main() {
 		}
 	));
 
-	TestSuite.AddTest( max::Testing::Test( "standard 87a is parsed",
-		[]( max::Testing::Test & CurrentTest ) {
-			auto const Buffer = std::vector< uint8_t >{ 'G', 'I', 'F', '8', '7', 'a' };
-			auto const TestObject = maxGif::Parsing::HeaderBlockToken{ 0 };
-
-			CurrentTest.MAX_TESTING_ASSERT( TestObject.Standard( Buffer ) == maxGif::Parsing::HeaderBlockToken::GifStandards::_87a );
-		}
-	));
-
-	TestSuite.AddTest( max::Testing::Test( "standard 89a is parsed",
-		[]( max::Testing::Test & CurrentTest ) {
-			auto const Buffer = std::vector< uint8_t >{ 'G', 'I', 'F', '8', '9', 'a' };
-			auto const TestObject = maxGif::Parsing::HeaderBlockToken{ 0 };
-
-			CurrentTest.MAX_TESTING_ASSERT( TestObject.Standard( Buffer ) == maxGif::Parsing::HeaderBlockToken::GifStandards::_89a );
-		}
-	));
-
 	TestSuite.RunTests();
 
 	return 0;

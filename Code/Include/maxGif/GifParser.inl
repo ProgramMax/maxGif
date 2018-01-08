@@ -41,11 +41,6 @@ namespace
 	                                   const size_t ExpectedTokenSize ) noexcept;
 
 	template< typename CallbackPolicyType >
-	bool DoesBufferStartWithGIF( GifParserState & ParserState,
-	                             CallbackPolicyType & CallbackPolicy,
-	                             const std::vector< uint8_t > & Buffer ) noexcept;
-
-	template< typename CallbackPolicyType >
 	bool IsGifVersionKnown( GifParserState & ParserState,
 	                        CallbackPolicyType & CallbackPolicy,
 	                        const std::vector< uint8_t > & Buffer ) noexcept;
@@ -61,20 +56,15 @@ namespace
 		                                  maxGif::Parsing::HeaderBlockToken::SizeInBytes() ) )
 		{
 			// Gif files all start with "GIF",
-			if( DoesBufferStartWithGIF( ParserState,
-			                            CallbackPolicy,
-			                            Buffer ) )
+			// followed by the specification version.
+			// The only specifications published as of
+			// this writing is 87a and 89a
+			if( IsGifVersionKnown( ParserState,
+			                       CallbackPolicy,
+			                       Buffer ) )
 			{
-				// followed by the specification version.
-				// The only specifications published as of
-				// this writing is 87a and 89a
-				if( IsGifVersionKnown( ParserState,
-				                       CallbackPolicy,
-				                       Buffer ) )
-				{
-					CallbackPolicy.OnHeaderBlockEncountered( maxGif::Parsing::HeaderBlockToken( ParserState.m_CurrentOffset ), Buffer );
-					ParserState.m_CurrentOffset += maxGif::Parsing::HeaderBlockToken::SizeInBytes();
-				}
+				CallbackPolicy.OnHeaderBlockEncountered( maxGif::Parsing::HeaderBlockToken( ParserState.m_CurrentOffset ), Buffer );
+				ParserState.m_CurrentOffset += maxGif::Parsing::HeaderBlockToken::SizeInBytes();
 			}
 		}
 
@@ -157,16 +147,18 @@ namespace
 			if (BufferHasEnoughSpaceForToken( ParserState,
 			                                  CallbackPolicy,
 			                                  Buffer,
-			                                  maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes()  ) )
+			                                  maxGif::v0::Parsing::GraphicControlExtensionBlockToken::MinimumSizeRequiredInBytes()  ) )
 			{
-				auto BlockTerminator = Buffer[ ParserState.m_CurrentOffset + maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes() - 1 ];
+				auto BlockSize = Buffer[ ParserState.m_CurrentOffset + 2 ];
+				auto BlockTerminator = Buffer[ ParserState.m_CurrentOffset + BlockSize + 3 ];
 				if( BlockTerminator != 0x00 )
 				{
 					CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::BlockTerminatorNotPresent ), Buffer );
 					return false;
 				}
-				CallbackPolicy.OnGraphicControlExtensionBlockEncountered( maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
-				ParserState.m_CurrentOffset += maxGif::v0::Parsing::GraphicControlExtensionBlockToken::SizeInBytes();
+				auto Block = maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset, BlockSize };
+				CallbackPolicy.OnGraphicControlExtensionBlockEncountered( Block, Buffer );
+				ParserState.m_CurrentOffset += Block.SizeInBytes();
 				return true;
 			} else {
 				return false;
@@ -193,12 +185,14 @@ namespace
 					if( BufferHasEnoughSpaceForToken( ParserState,
 					                                  CallbackPolicy,
 					                                  Buffer,
-					                                  2 ) )
+					                                  3 ) )
 					{
+						// All extensions have a size listed in their 3rd byte
+						uint8_t BlockSizeInBytes = Buffer[ ParserState.m_CurrentOffset ];
 						switch( Buffer[ ParserState.m_CurrentOffset ] )
 						{
 						case 0xf9: // Graphics control label
-							CallbackPolicy.OnGraphicControlExtensionBlockEncountered( maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset }, Buffer );
+							CallbackPolicy.OnGraphicControlExtensionBlockEncountered( maxGif::v0::Parsing::GraphicControlExtensionBlockToken{ ParserState.m_CurrentOffset, BlockSizeInBytes }, Buffer );
 							return ReadGraphicControlExtensionBlock( ParserState,
 							                                         CallbackPolicy,
                                                                      Buffer );
@@ -262,37 +256,30 @@ namespace
 	}
 
 	template< typename CallbackPolicyType >
-	bool DoesBufferStartWithGIF( GifParserState & ParserState,
-	                             CallbackPolicyType & CallbackPolicy,
-	                             const std::vector< uint8_t > & Buffer ) noexcept
-	{
-		// Gif files all start with "GIF",
-		if( Buffer[ ParserState.m_CurrentOffset + 0 ] == 'G' &&
-		    Buffer[ ParserState.m_CurrentOffset + 1 ] == 'I' &&
-		    Buffer[ ParserState.m_CurrentOffset + 2 ] == 'F' )
-		{
-			return true;
-		} else {
-			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::InvalidHeader ), Buffer );
-			return false;
-		}
-	}
-
-	template< typename CallbackPolicyType >
 	bool IsGifVersionKnown( GifParserState & ParserState,
 	                        CallbackPolicyType & CallbackPolicy,
 	                        const std::vector< uint8_t > & Buffer ) noexcept
 	{
-		if( Buffer[ ParserState.m_CurrentOffset + 3 ] == '8' &&
-		    ( Buffer[ ParserState.m_CurrentOffset + 4 ] == '7' ||
-		      Buffer[ ParserState.m_CurrentOffset + 4 ] == '9' ) &&
-		    Buffer[ ParserState.m_CurrentOffset + 5 ] == 'a' )
+		if( Buffer[ ParserState.m_CurrentOffset + 0 ] == 'G' &&
+		    Buffer[ ParserState.m_CurrentOffset + 1 ] == 'I' &&
+			Buffer[ ParserState.m_CurrentOffset + 2 ] == 'F' &&
+			Buffer[ ParserState.m_CurrentOffset + 3 ] == '8' &&
+			// Skip the + 4 offset for now
+			Buffer[ ParserState.m_CurrentOffset + 5 ] == 'a' )
 		{
-			return true;
-		} else {
-			CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ), Buffer );
-			return false;
+			// Return to + 4 offset
+			if( Buffer[ ParserState.m_CurrentOffset + 4 ] == '7' )
+			{
+				// Standard is gif 87
+				return true;
+			} else if( Buffer[ ParserState.m_CurrentOffset + 4 ] == '9' ) {
+				// Standard is gif 89
+				return true;
+			}
 		}
+
+		CallbackPolicy.OnErrorEncountered( maxGif::v0::Parsing::ErrorToken( ParserState.m_CurrentOffset, maxGif::v0::Parsing::ErrorToken::ErrorCodes::UnknownGifVersion ), Buffer );
+		return false;
 	}
 
 } // anonymous namespace

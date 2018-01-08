@@ -22,11 +22,10 @@ namespace Parsing
 		enum class ErrorCodes
 		{
 			BufferTooSmallForToken,
-			InvalidHeader,
 			UnknownGifVersion,
 			UnknownBlock,
 			UnexpectedBlockSize,
-			BlockTerminatorNotPresent
+			BlockTerminatorNotPresent,
 		};
 
 		constexpr ErrorToken( const size_t StartOffset, const ErrorCodes ErrorCode ) noexcept

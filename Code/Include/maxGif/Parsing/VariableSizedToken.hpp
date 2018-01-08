@@ -20,13 +20,13 @@ namespace Parsing
 	{
 	public:
 
-		constexpr VariableSizedToken( const size_t StartOffset, const size_t SizeInBytes ) noexcept
+		constexpr VariableSizedToken( const size_t StartOffset, const uint8_t SizeInBytes ) noexcept
 			: Token(       StartOffset )
 			, SizeInBytes( SizeInBytes )
 		{
 		}
 
-		size_t SizeInBytes;
+		uint8_t SizeInBytes;
 
 	};
 

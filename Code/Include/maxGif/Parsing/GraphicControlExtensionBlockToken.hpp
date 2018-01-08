@@ -6,9 +6,10 @@
 #define MAXGIF_PARSING_GRAPHICCONTROLEXTENSIONBLOCKTOKEN_HPP
 
 #include <max/Compiling/CurrentVersionNamespace.hpp>
-#include <maxGif/Parsing/Token.hpp>
+#include <maxGif/Parsing/VariableSizedToken.hpp>
 #include <maxGif/Parsing/BitManipulation.hpp>
 #include <vector>
+#include <cstddef>
 
 namespace maxGif
 {
@@ -17,18 +18,23 @@ MAX_CURRENT_VERSION_NAMESPACE_BEGIN( v0 )
 namespace Parsing
 {
 
-	class GraphicControlExtensionBlockToken : public Token
+	class GraphicControlExtensionBlockToken : public VariableSizedToken
 	{
 	public:
 
-		explicit constexpr GraphicControlExtensionBlockToken( const size_t StartOffset ) noexcept
-			: Token( StartOffset )
+		explicit constexpr GraphicControlExtensionBlockToken( const size_t StartOffset, const uint8_t SizeInBytes ) noexcept
+			: VariableSizedToken( StartOffset, SizeInBytes )
 		{
 		}
 
-		static constexpr size_t SizeInBytes() noexcept
+		static constexpr size_t MinimumSizeRequiredInBytes() noexcept
 		{
 			return 8;
+		}
+
+		constexpr size_t SizeInBytes() noexcept
+		{
+			return VariableSizedToken::SizeInBytes;
 		}
 
 		enum class DisposalMethods
